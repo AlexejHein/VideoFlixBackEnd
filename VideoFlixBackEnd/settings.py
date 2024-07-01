@@ -1,6 +1,6 @@
+import os
 from pathlib import Path
 from .local_settings import DATABASES
-
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -9,6 +9,10 @@ SECRET_KEY = 'django-insecure-1tb%n$bjwb4v9lpp&g(s&^*7c84^j$zr$rok0hos@9nxj!ke0z
 DEBUG = True
 
 ALLOWED_HOSTS = []
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:4200",  # Fügen Sie die URL Ihrer Angular-App hinzu
+]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -23,6 +27,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'rest_framework',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -34,6 +39,8 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'VideoFlixBackEnd.urls'
@@ -56,7 +63,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'VideoFlixBackEnd.wsgi.application'
-
 
 CACHES = {
     'default': {
@@ -86,7 +92,7 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'allauth.account.auth_backends.AuthenticationBackend',
+    'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
@@ -109,3 +115,8 @@ ACCOUNT_EMAIL_REQUIRED = True
 
 CELERY_BROKER_URL = 'redis://localhost:6379/0'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
