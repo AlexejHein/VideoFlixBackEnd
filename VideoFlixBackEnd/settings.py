@@ -1,4 +1,5 @@
 from pathlib import Path
+from .local_settings import DATABASES
 
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -56,16 +57,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'VideoFlixBackEnd.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'videoflix_db',
-        'USER': 'your_db_user',
-        'PASSWORD': 'your_db_password',
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
-}
 
 CACHES = {
     'default': {
