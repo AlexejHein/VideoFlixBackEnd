@@ -8,3 +8,5 @@ gunicorn
 
 ffmpeg~=1.4
 pillow~=10.4.0
+self~=2020.12.3
+moviepy~=1.0.3

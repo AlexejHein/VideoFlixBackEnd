@@ -1,11 +1,11 @@
-# core/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.conf import settings
 from django.core.files.base import ContentFile
-import ffmpeg
-from io import BytesIO
+from moviepy.editor import VideoFileClip
 from PIL import Image
+import os
+from io import BytesIO
 
 
 class CustomUser(AbstractUser):
@@ -24,25 +24,33 @@ class Video(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+        # Save the object first to ensure it has a primary key
+        if not self.pk:
+            super().save(*args, **kwargs)
+
+        # Generate the thumbnail if it doesn't exist
         if not self.thumbnail:
             self.generate_thumbnail()
 
+        # Save the object again to update the thumbnail field
+        super().save(*args, **kwargs)
+
     def generate_thumbnail(self):
         video_path = self.file.path
-        thumbnail_path = f"thumbnails/{self.pk}.jpg"
+        thumbnail_path = os.path.join(settings.MEDIA_ROOT, 'thumbnails', f"{self.pk}.jpg")
 
-        # Extract a frame from the video using ffmpeg
-        out, _ = (
-            ffmpeg
-            .input(video_path, ss=1)  # ss=1 means 1 second into the video
-            .output('pipe:', vframes=1, format='image2', vcodec='mjpeg')
-            .run(capture_stdout=True)
-        )
+        if not os.path.exists(video_path):
+            raise FileNotFoundError(f"Video file not found at path: {video_path}")
 
-        # Save the extracted frame as an image
-        image = Image.open(BytesIO(out))
-        thumbnail_io = BytesIO()
-        image.save(thumbnail_io, format='JPEG')
-        self.thumbnail.save(thumbnail_path, ContentFile(thumbnail_io.getvalue()), save=False)
-        super().save(update_fields=['thumbnail'])  # Save again to update the thumbnail field
+        try:
+            # Extract a frame from the video using moviepy
+            clip = VideoFileClip(video_path)
+            frame = clip.get_frame(1)  # Get frame at 1 second
+
+            # Convert the frame (numpy array) to an image
+            image = Image.fromarray(frame)
+            thumbnail_io = BytesIO()
+            image.save(thumbnail_io, format='JPEG')
+            self.thumbnail.save(os.path.basename(thumbnail_path), ContentFile(thumbnail_io.getvalue()), save=False)
+        except Exception as e:
+            raise RuntimeError(f"Saving thumbnail failed: {e}")
