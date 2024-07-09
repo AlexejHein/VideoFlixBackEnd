@@ -1,13 +1,25 @@
 # core/serializers.py
 from rest_framework import serializers
-from .models import Video
+from .models import Video, CustomUser
 from django.contrib.auth import get_user_model
 
 
-class UserSerializer(serializers.ModelSerializer):
+class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = get_user_model()
-        fields = ('id', 'username', 'email')
+        model = CustomUser
+        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        user = CustomUser(
+            email=validated_data['email'],
+            username=validated_data['username'],
+            first_name=validated_data['first_name'],
+            last_name=validated_data['last_name'],
+        )
+        user.set_password(validated_data['password'])
+        user.save()
+        return user
 
 
 class VideoSerializer(serializers.ModelSerializer):

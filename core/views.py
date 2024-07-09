@@ -1,20 +1,22 @@
-# core/views.py
-from rest_framework import generics
-from .models import Video
-from .serializers import VideoSerializer, UserSerializer
-from django.contrib.auth import get_user_model
+from rest_framework import generics, permissions
+from .models import Video, CustomUser
+from .serializers import VideoSerializer, CustomUserSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
-class UserCreateView(generics.CreateAPIView):
-    queryset = get_user_model().objects.all()
-    serializer_class = UserSerializer
+class CustomUserCreateView(generics.CreateAPIView):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
 
 
 class VideoListView(generics.ListCreateAPIView):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    permission_classes = [IsAuthenticated]
 
 
 class VideoDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Video.objects.all()
     serializer_class = VideoSerializer
+    permission_classes = [IsAuthenticated]
+
