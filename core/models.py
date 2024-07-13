@@ -24,15 +24,12 @@ class Video(models.Model):
         return self.title
 
     def save(self, *args, **kwargs):
-        # Save the object first to ensure it has a primary key
         if not self.pk:
             super().save(*args, **kwargs)
 
-        # Generate the thumbnail if it doesn't exist
         if not self.thumbnail:
             self.generate_thumbnail()
 
-        # Save the object again to update the thumbnail field
         super().save(*args, **kwargs)
 
     def generate_thumbnail(self):
@@ -43,11 +40,9 @@ class Video(models.Model):
             raise FileNotFoundError(f"Video file not found at path: {video_path}")
 
         try:
-            # Extract a frame from the video using moviepy
             clip = VideoFileClip(video_path)
-            frame = clip.get_frame(1)  # Get frame at 1 second
+            frame = clip.get_frame(1)
 
-            # Convert the frame (numpy array) to an image
             image = Image.fromarray(frame)
             thumbnail_io = BytesIO()
             image.save(thumbnail_io, format='JPEG')
