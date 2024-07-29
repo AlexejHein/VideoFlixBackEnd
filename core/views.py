@@ -1,3 +1,4 @@
+from django.views.generic import TemplateView
 from rest_framework import generics, permissions
 from .models import Video, CustomUser
 from .serializers import VideoSerializer, CustomUserSerializer
@@ -20,3 +21,6 @@ class VideoDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = VideoSerializer
     permission_classes = [IsAuthenticated]
 
+
+class EmailVerificationView(TemplateView):
+    template_name = 'email_confirmation.html'

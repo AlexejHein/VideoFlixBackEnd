@@ -4,28 +4,25 @@ from rest_framework import serializers
 from .models import Video, CustomUser
 from django.contrib.auth import get_user_model
 
+User = get_user_model()
+
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = CustomUser
-        fields = ('id', 'username', 'email', 'password', 'first_name', 'last_name')
-        extra_kwargs = {'password': {'write_only': True}}
+        model = User
+        fields = ('id', 'username', 'email', 'password1', 'first_name', 'last_name')
+        extra_kwargs = {'password1': {'write_only': True}}
 
     def create(self, validated_data):
-        try:
-            with transaction.atomic():
-                user = CustomUser(
-                    email=validated_data['email'],
-                    username=validated_data['username'],
-                    first_name=validated_data['first_name'],
-                    last_name=validated_data['last_name'],
-                )
-                user.set_password(validated_data['password'])
-                user.save()
-                return user
-        except Exception as e:
-            # Hier können Sie spezifische Ausnahmen behandeln oder loggen
-            raise serializers.ValidationError({"error": "Fehler bei der Benutzererstellung."})
+        with transaction.atomic():
+            user = User.objects.create_user(
+                email=validated_data['email'],
+                username=validated_data['username'],
+                password=validated_data['password1'],  # Updated to use 'password1'
+                first_name=validated_data.get('first_name', ''),
+                last_name=validated_data.get('last_name', '')
+            )
+            return user
 
 
 class VideoSerializer(serializers.ModelSerializer):
